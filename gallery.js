@@ -4,7 +4,13 @@ const refs = {
   gallery: document.querySelector(".js-gallery"),
   lightbox: document.querySelector(".js-lightbox"),
   lightboxImage: document.querySelector(".lightbox__image"),
-  lightboxButton: document.querySelector('button[data-action="close-lightbox"]')
+  openModalWindow: document.querySelector("div.lightbox"),
+  lightboxButton: document.querySelector('button[data-action="close-lightbox"]'),
+  overlay: document.querySelector("div.lightbox__content")
+
+
+ 
+
 };
 
 function CreateGalleryItems() {
@@ -22,7 +28,6 @@ function CreateGalleryItems() {
   elemSpan.classList.add("gallery__icon");
   elemI.classList.add("material-icons");
 
-  elemI.textContent = "zoom_out_map";
 
   elemLi.append(elemA, elemSpan);
   elemA.appendChild(elemImg);
@@ -35,30 +40,37 @@ function CreateGalleryItems() {
     elemImg.dataset.source = item.original;
     arr.push(elemLi.outerHTML);
   });
-  return arr.join("");
+  return arr.join(" ");
 }
 
 refs.gallery.insertAdjacentHTML("afterbegin", CreateGalleryItems());
 
-/* Open Lightbox */
 
-refs.gallery.addEventListener("click", openLightbox);
 
-function openLightbox(e) {
-  e.preventDefault();
+refs.gallery.addEventListener("click", handeleOpenItem);
+refs.lightboxButton.addEventListener("click", hangeleCloseButton);
+refs.overlay.addEventListener("click", hangeleCloseOverlay);
 
-  const target = e.target;
-  const bigImgSrc = target.dataset.source;
-
-  refs.lightbox.classList.add("is-open");
-  refs.lightboxImage.src = bigImgSrc;
+function handeleOpenItem(evt) {
+  evt.preventDefault();
+  const targetImage = evt.target;
+  if (targetImage === evt.currentTarget) {
+    return; 
+  }
+  
+  refs.openModalWindow.classList.add("is-open");
+  
+  refs.lightboxImage.alt = targetImage.alt;
+  refs.lightboxImage.src = targetImage.dataset.source;
+  window.addEventListener("keyup", handleEscape);
+  window.addEventListener("keyup", handleScrolling);
 }
 
-/* Close Lightbox */
-
-refs.lightboxButton.addEventListener("click", closeLightbox);
-
-function closeLightbox() {
-  refs.lightbox.classList.remove("is-open");
+function hangeleCloseButton() {
+  refs.openModalWindow.classList.remove("is-open");
+  
+  refs.lightboxImage.alt = "";
   refs.lightboxImage.src = "";
-}
+  window.removeEventListener("keyup", handleEscape);
+  window.removeEventListener("keyup", handleScrolling);
+};
